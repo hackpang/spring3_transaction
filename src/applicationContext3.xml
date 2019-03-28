@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:tx="http://www.springframework.org/schema/tx"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans 
+	http://www.springframework.org/schema/beans/spring-beans.xsd
+	http://www.springframework.org/schema/context
+	http://www.springframework.org/schema/context/spring-context.xsd
+	http://www.springframework.org/schema/aop
+	http://www.springframework.org/schema/aop/spring-aop.xsd
+	http://www.springframework.org/schema/tx 
+	http://www.springframework.org/schema/tx/spring-tx.xsd">
+	
+	 
+	 <bean class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+	 	<property name="location" value="classpath:jdbc.properties"></property>
+	 </bean>
+	 <!--配置c3p0连接池 -->
+	 <bean id="dataSource" class="com.mchange.v2.c3p0.ComboPooledDataSource">
+	 	<property name="driverClass" value="${jdbc.driver}"></property>
+	 	<property name="jdbcUrl" value="${jdbc.url}"></property>
+	 	<property name="user" value="${jdbc.user}"></property>
+		<property name="password" value="${jdbc.pr}"></property>
+	 </bean>
+	
+	
+	<!-- 业务层类 -->	
+	<bean id="accountService" class="com.wang.demo3.accountServiceImpl">
+		<property name="accountDao" ref="accountDao"></property>
+	
+	</bean>
+	
+	<!--持久层的类  -->
+	<bean id="accountDao" class="com.wang.demo3.accountDaoImpl">
+		<!-- 注入连接池的对象,通过连接池的对象来创建模板 -->
+		<property name="dataSource" ref="dataSource"></property>
+	</bean>
+	
+	<bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+		<property name="dataSource" ref="dataSource"></property>
+	</bean>
+	
+	<!-- 定义一个增强 -->
+	<tx:advice id="txAdvice" transaction-manager="transactionManager">
+		<tx:attributes>
+			<tx:method name="transfer"/>
+		</tx:attributes>
+	</tx:advice>
+	
+	<!--使用aop配置定义切面和切点的信息  -->
+	<aop:config>
+	
+		<!-- 定义切点 -->
+		<aop:pointcut expression="execution(* com.wang.demo3.accountService+.*(..))" id="myPointCut"/>
+		<!-- 定义切面 -->
+		<aop:advisor advice-ref="txAdvice" pointcut-ref="myPointCut"/>
+	</aop:config>
+	
+	
+	
+</beans>

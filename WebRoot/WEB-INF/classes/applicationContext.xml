@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+		xmlns:p="http://www.springframework.org/schema/p"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="
+http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+	
+	 
+	 <bean class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+	 	<property name="location" value="classpath:jdbc.properties"></property>
+	 </bean>
+	 <!--配置c3p0连接池 -->
+	 <bean id="dataSource" class="com.mchange.v2.c3p0.ComboPooledDataSource">
+	 	<property name="driverClass" value="${jdbc.driver}"></property>
+	 	<property name="jdbcUrl" value="${jdbc.url}"></property>
+	 	<property name="user" value="${jdbc.user}"></property>
+		<property name="password" value="${jdbc.pr}"></property>
+	 </bean>
+	
+	
+	<!-- 业务层类 -->	
+	<bean id="accountService" class="com.wang.demo1.accountServiceImpl">
+		<property name="accountDao" ref="accountDao"></property>
+		<!--  在业务层注入事务管理模板-->
+		<property name="transactionTemplate" ref="transactionTemplate"></property>
+	</bean>
+	
+	<!--持久层的类  -->
+	<bean id="accountDao" class="com.wang.demo1.accountDaoImpl">
+		<!-- 注入连接池的对象,通过连接池的对象来创建模板 -->
+		<property name="dataSource" ref="dataSource"></property>
+	</bean>
+	
+	<!-- 事务管理的模板 -->
+	<bean id="transactionTemplate" class="org.springframework.transaction.support.TransactionTemplate">
+		<property name="transactionManager" ref="transactionManager"></property>
+	</bean>
+	
+	<!--配置事务管理器  -->
+	<bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+	<!-- 需要注入连接池,通过连接池来获得连接 -->
+		<property name="dataSource" ref="dataSource"></property>
+		
+	</bean>
+</beans>

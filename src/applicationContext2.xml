@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+		xmlns:p="http://www.springframework.org/schema/p"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="
+http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+	
+	 
+	 <bean class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+	 	<property name="location" value="classpath:jdbc.properties"></property>
+	 </bean>
+	 <!--配置c3p0连接池 -->
+	 <bean id="dataSource" class="com.mchange.v2.c3p0.ComboPooledDataSource">
+	 	<property name="driverClass" value="${jdbc.driver}"></property>
+	 	<property name="jdbcUrl" value="${jdbc.url}"></property>
+	 	<property name="user" value="${jdbc.user}"></property>
+		<property name="password" value="${jdbc.pr}"></property>
+	 </bean>
+	
+	
+	<!-- 业务层类 -->	
+	<bean id="accountService" class="com.wang.demo2.accountServiceImpl">
+		<property name="accountDao" ref="accountDao"></property>
+	
+	</bean>
+	
+	<!--持久层的类  -->
+	<bean id="accountDao" class="com.wang.demo2.accountDaoImpl">
+		<!-- 注入连接池的对象,通过连接池的对象来创建模板 -->
+		<property name="dataSource" ref="dataSource"></property>
+	</bean>
+	
+	<!-- 事务管理器 -->
+	<bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+		<!--注入连接池  -->
+		<property name="dataSource" ref="dataSource"></property>
+	</bean>
+	
+	<!--配置生成的代理对象   -->
+	<bean id="accountServiceProxy" class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">
+	<!-- 目标对象 -->
+		<property name="target" ref="accountService"></property>
+		<!-- 注入事务管理器   -->
+		<property name="transactionManager" ref="transactionManager"></property>
+		<!--事务的属性设置  -->
+		<property name="transactionAttributes">
+			<props>
+				<prop key="transfer">PROPAGATION_REQUIRED</prop>
+			</props>
+		</property>
+	</bean>
+	
+	
+</beans>

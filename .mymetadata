@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project-module
+  type="WEB"
+  name="spring3_transaction"
+  id="myeclipse.1546956769430"
+  context-root="/spring3_transaction"
+  j2ee-spec="5.0"
+  archive="spring3_transaction.war">
+  <attributes>
+    <attribute name="webrootdir" value="WebRoot" />
+  </attributes>
+</project-module>
+
